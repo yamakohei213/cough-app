@@ -10,10 +10,39 @@ type UploadResponse = {
   error?: string
 }
 
+type UploadStatus = "idle" | "uploading" | "success" | "error"
+
+const popoverElement = document.getElementById("recording-popover")
+
 export default function RecordButton() {
-  const [uploading, setUploading] = useState(false)
-  const [message, setMessage] = useState("")
+  const [uploadStatus, setUploadStatus] = useState<UploadStatus>("idle")
   const [blobData, setBlobData] = useState<Blob>()
+
+  const UploadButton = () => {
+    if (uploadStatus == "idle")
+      return (
+        <div
+          className="bg-green-50 rounded-md  ring-1 text-green-700 text-center py-2 cursor-pointer hover:bg-green-600 transition-colors ring-green-700 hover:text-white px-3"
+          onClick={() => {
+            if (blobData) {
+              tryUploading(blobData)
+            }
+          }}
+        >
+          ☑️ Upload
+        </div>
+      )
+  }
+
+  const tryUploading = async (blob: Blob) => {
+    try {
+      setUploadStatus("uploading")
+      const result = await uploadAudio(blob)
+      setUploadStatus("success")
+    } catch (e) {
+      setUploadStatus("error")
+    }
+  }
 
   const uploadAudio = async (blob: Blob) => {
     const formData = new FormData()
@@ -42,19 +71,6 @@ export default function RecordButton() {
     return data
   }
 
-  const tryUploading = async (blob: Blob) => {
-    try {
-      setUploading(true)
-      setMessage("")
-      const result = await uploadAudio(blob)
-      setMessage(`保存完了: ${result.filename}`)
-    } catch (e) {
-      setMessage(e instanceof Error ? e.message : "保存に失敗しました")
-    } finally {
-      setUploading(false)
-    }
-  }
-
   const { status, startRecording, stopRecording, mediaBlobUrl, clearBlobUrl } =
     useReactMediaRecorder({
       audio: true,
@@ -77,7 +93,7 @@ export default function RecordButton() {
       </button>
       <div
         id="recording-popover"
-        popover=""
+        popover="manual"
         className="fixed inset-0 bg-white-400 p-8 rounded-2xl m-auto backdrop:bg-gray-900/50 space-y-6"
       >
         {status == "stopped" ? (
@@ -96,16 +112,6 @@ export default function RecordButton() {
                 onClick={startRecording}
               >
                 ↺ Re-record
-              </div>
-              <div
-                className="bg-green-50 rounded-md  ring-1 text-green-700 text-center py-2 cursor-pointer hover:bg-green-600 transition-colors ring-green-700 hover:text-white px-3"
-                onClick={() => {
-                  if (blobData) {
-                    tryUploading(blobData)
-                  }
-                }}
-              >
-                ☑️ Upload
               </div>
             </>
           ) : (
