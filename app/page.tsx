@@ -20,10 +20,7 @@ export default function Home() {
       ></Image>
       <div className="grid grid-cols-3 gap-8">
         {[...Array(6).keys()].map((i) => (
-          <PlayButton
-            key={i}
-            cough={i}
-          />
+          <PlayButton cough={i} />
         ))}
       </div>
       <AudioRecorder />
