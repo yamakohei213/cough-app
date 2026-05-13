@@ -2,6 +2,20 @@
 
 import { useState } from "react"
 import { useReactMediaRecorder } from "react-media-recorder"
+import { Mic, RotateCw, Upload, Check } from "lucide-react"
+import { Button } from "./ui/button"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "./ui/dialog"
 
 type UploadResponse = {
   ok: boolean
@@ -12,7 +26,7 @@ type UploadResponse = {
 
 type UploadStatus = "idle" | "uploading" | "success" | "error"
 
-const popoverElement = document.getElementById("recording-popover")
+const recordingLimitMS = 10000
 
 export default function RecordButton() {
   const [uploadStatus, setUploadStatus] = useState<UploadStatus>("idle")
@@ -21,17 +35,20 @@ export default function RecordButton() {
   const UploadButton = () => {
     if (uploadStatus == "idle")
       return (
-        <div
-          className="bg-green-50 rounded-md  ring-1 text-green-700 text-center py-2 cursor-pointer hover:bg-green-600 transition-colors ring-green-700 hover:text-white px-3"
-          onClick={() => {
-            if (blobData) {
-              tryUploading(blobData)
-            }
-          }}
-        >
-          ☑️ Upload
-        </div>
+        <Button onClick={() => blobData && tryUploading(blobData)}>
+          <Upload />
+          Upload
+        </Button>
       )
+  }
+
+  const RerecordButton = () => {
+    return (
+      <Button onClick={startRecording}>
+        <RotateCw />
+        Re-record
+      </Button>
+    )
   }
 
   const tryUploading = async (blob: Blob) => {
@@ -71,59 +88,79 @@ export default function RecordButton() {
     return data
   }
 
-  const { status, startRecording, stopRecording, mediaBlobUrl, clearBlobUrl } =
+  const { status, startRecording, stopRecording, mediaBlobUrl } =
     useReactMediaRecorder({
       audio: true,
       blobPropertyBag: { type: "audio/webm" },
+      onStart() {
+        setUploadStatus("idle")
+        // setTimeout(() => stopRecording(), recordingLimitMS)
+      },
       onStop(_blobUrl, blob) {
         setBlobData(blob)
       },
     })
 
   return (
-    <>
-      <div className="fixed bottom-0 right-0">{mediaBlobUrl}</div>
-      <button
-        className="flex items-center gap-4 bg-red-600 before:block before:bg-white before:size-6 before:rounded-full text-white font-semibold py-4 px-6 rounded-lg text-2xl cursor-pointer hover:bg-red-700 transition-colors"
-        onClick={startRecording}
-        popoverTarget="recording-popover"
-        popoverTargetAction="show"
+    // <Tooltip>
+    //   <TooltipTrigger asChild>
+    //     {status == "recording" ? (
+    //       <Button
+    //         variant={"outline"}
+    //         className="size-24 rounded-full"
+    //         onClick={stopRecording}
+    //       >
+    //         <Check className="size-10 text-green-600"></Check>
+    //       </Button>
+    //     ) : (
+    //       <Button
+    //         variant={"outline"}
+    //         className="size-24 rounded-full"
+    //         onClick={startRecording}
+    //       >
+    //         <Mic className="size-10 text-red-600"></Mic>
+    //       </Button>
+    //     )}
+    //   </TooltipTrigger>
+    //   <TooltipContent side="bottom">Start Recording</TooltipContent>
+    // </Tooltip>
+
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button
+          variant={"outline"}
+          className="size-24 rounded-full"
+          onClick={startRecording}
+        >
+          <Mic className="size-12 text-red-600"></Mic>
+        </Button>
+      </DialogTrigger>
+      <DialogContent
+        onInteractOutside={(e) => e.preventDefault()}
+        showCloseButton={true}
       >
-        Record…
-      </button>
-      <div
-        id="recording-popover"
-        popover="manual"
-        className="fixed inset-0 bg-white-400 p-8 rounded-2xl m-auto backdrop:bg-gray-900/50 space-y-6"
-      >
-        {status == "stopped" ? (
+        <DialogHeader>
+          <DialogTitle>
+            {status == "stopped" ? "Successfully recorded" : "Recording…"}
+          </DialogTitle>
+        </DialogHeader>
+        {status == "stopped" && (
           <audio
             controls
             src={mediaBlobUrl}
           ></audio>
-        ) : (
-          <div>Recording…</div>
         )}
-        <div className="flex gap-6 font-semibold">
+        <div className="flex gap-6">
           {status == "stopped" ? (
-            <>
-              <div
-                className="bg-red-50 rounded-md ring-1 text-red-700 text-center py-2 cursor-pointer hover:bg-red-700 transition-colors hover:text-white ring-red-700 px-3"
-                onClick={startRecording}
-              >
-                ↺ Re-record
-              </div>
-            </>
+            <div className="flex gap-3">
+              <RerecordButton />
+              <UploadButton />
+            </div>
           ) : (
-            <button
-              className="bg-red-50 rounded-md ring-1 text-red-700 text-center py-2 cursor-pointer hover:bg-red-700 transition-colors hover:text-white ring-red-700 px-3"
-              onClick={stopRecording}
-            >
-              Stop
-            </button>
+            <Button onClick={stopRecording}>Stop</Button>
           )}
         </div>
-      </div>
-    </>
+      </DialogContent>
+    </Dialog>
   )
 }

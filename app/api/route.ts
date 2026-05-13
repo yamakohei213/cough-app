@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { put } from "@vercel/blob";
 import { promises as fs } from "fs";
 import path from "path";
 import { randomUUID } from "crypto";
@@ -32,13 +33,13 @@ export async function POST(request: Request) {
 		const arrayBuffer = await file.arrayBuffer()
 		const buffer = Buffer.from(arrayBuffer)
 
-		const uploadDir = path.join(process.cwd(), "coughs")
 
 		const ext = extFromMimeOrName(file.type, file.name || "audio.bin")
 		const filename = `${Date.now()}-${randomUUID()}.${ext}`
-		const savePath = path.join(uploadDir, filename)
+		const savePath = path.join("coughs", filename)
 
-		await fs.writeFile(savePath, buffer)
+		const { url } = await put(savePath, buffer, { access: "public" })
+		console.log(url)
 
 		return NextResponse.json({
 			ok: true,

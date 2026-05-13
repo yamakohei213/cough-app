@@ -18,9 +18,12 @@ export default function Home() {
         width={200}
         height={200}
       ></Image>
-      <div className="grid grid-cols-4 gap-8">
-        {[...Array(12).keys()].map((i) => (
-          <PlayButton key={i} />
+      <div className="grid grid-cols-3 gap-8">
+        {[...Array(6).keys()].map((i) => (
+          <PlayButton
+            key={i}
+            cough={i}
+          />
         ))}
       </div>
       <AudioRecorder />

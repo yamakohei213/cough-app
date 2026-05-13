@@ -1,5 +1,15 @@
 import React from "react"
 
-export default function PlayButton() {
-    return <button className="text-5xl cursor-pointer">▶️</button>
+import { CirclePlay } from "lucide-react"
+import { Button } from "./ui/button"
+
+export default function PlayButton(cough: number) {
+  return (
+    <Button
+      size="icon-lg"
+      variant={"outline"}
+    >
+      <CirclePlay />
+    </Button>
+  )
 }
