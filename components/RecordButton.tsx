@@ -32,25 +32,6 @@ export default function RecordButton() {
   const [uploadStatus, setUploadStatus] = useState<UploadStatus>("idle")
   const [blobData, setBlobData] = useState<Blob>()
 
-  const UploadButton = () => {
-    if (uploadStatus == "idle")
-      return (
-        <Button onClick={() => blobData && tryUploading(blobData)}>
-          <Upload />
-          Upload
-        </Button>
-      )
-  }
-
-  const RerecordButton = () => {
-    return (
-      <Button onClick={startRecording}>
-        <RotateCw />
-        Re-record
-      </Button>
-    )
-  }
-
   const tryUploading = async (blob: Blob) => {
     try {
       setUploadStatus("uploading")
@@ -153,8 +134,16 @@ export default function RecordButton() {
         <div className="flex gap-6">
           {status == "stopped" ? (
             <div className="flex gap-3">
-              <RerecordButton />
-              <UploadButton />
+              <Button onClick={startRecording}>
+                <RotateCw />
+                Re-record
+              </Button>
+              {uploadStatus == "idle" && (
+                <Button onClick={() => blobData && tryUploading(blobData)}>
+                  <Upload />
+                  Upload
+                </Button>
+              )}
             </div>
           ) : (
             <Button onClick={stopRecording}>Stop</Button>

@@ -1,8 +1,6 @@
-import { NextResponse } from "next/server";
 import { put } from "@vercel/blob";
-import { promises as fs } from "fs";
-import path from "path";
 import { randomUUID } from "crypto";
+import { NextResponse } from "next/server";
 
 export const runtime = "nodejs"
 
@@ -13,7 +11,7 @@ function extFromMimeOrName(mimeType: string, originalName: string) {
 	if (mimeType.includes('mp4') || mimeType.includes('mpeg')) return 'm4a';
 
 	const dot = originalName.lastIndexOf('.')
-	if (dot >= 0) return originalName.slice(dot + 1).toLowerCase
+	if (dot >= 0) return originalName.slice(dot + 1).toLowerCase()
 
 	return "bin"
 }
@@ -33,10 +31,9 @@ export async function POST(request: Request) {
 		const arrayBuffer = await file.arrayBuffer()
 		const buffer = Buffer.from(arrayBuffer)
 
-
 		const ext = extFromMimeOrName(file.type, file.name || "audio.bin")
 		const filename = `${Date.now()}-${randomUUID()}.${ext}`
-		const savePath = path.join("coughs", filename)
+		const savePath = "coughs/" + filename
 
 		const { url } = await put(savePath, buffer, { access: "public" })
 		console.log(url)
