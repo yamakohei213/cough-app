@@ -46,6 +46,20 @@
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
+
+  --animate-wave-1: wave-anim 1.2s ease-in-out infinite alternate;
+  --animate-wave-2: wave-anim 0.8s ease-in-out infinite alternate;
+  --animate-wave-3: wave-anim 1.0s ease-in-out infinite alternate;
+  --animate-wave-4: wave-anim 0.7s ease-in-out infinite alternate;
+
+  @keyframes wave-anim {
+    0% {
+      transform: scaleY(0.3);
+    }
+    100% {
+      transform: scaleY(1.0);
+    }
+  }
 }
 
 :root {

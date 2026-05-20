@@ -28,7 +28,7 @@ type UploadStatus = "idle" | "uploading" | "success" | "error"
 
 const recordingLimitMS = 10000
 
-export default function RecordButton() {
+export default function RecordButton({ onUploadSuccess }: { onUploadSuccess?: () => void }) {
   const [uploadStatus, setUploadStatus] = useState<UploadStatus>("idle")
   const [blobData, setBlobData] = useState<Blob>()
 
@@ -37,6 +37,9 @@ export default function RecordButton() {
       setUploadStatus("uploading")
       const result = await uploadAudio(blob)
       setUploadStatus("success")
+      if (onUploadSuccess) {
+        onUploadSuccess()
+      }
     } catch (e) {
       setUploadStatus("error")
     }
