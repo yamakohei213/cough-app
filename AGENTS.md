@@ -112,6 +112,12 @@ AI エージェントが本リポジトリを変更する際は、以下の設�
   bun run build
   ```
 
+- **本番サーバーの起動**:
+
+  ```bash
+  bun run start
+  ```
+
 - **静的解析・検証**:
   ```bash
   bun run lint

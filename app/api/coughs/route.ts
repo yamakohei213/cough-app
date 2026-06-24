@@ -10,8 +10,6 @@ export async function GET() {
 		const coughs = blobs.map((blob) => ({
 			url: blob.url,
 			pathname: blob.pathname,
-			uploadedAt: blob.uploadedAt,
-			size: blob.size,
 		}))
 
 		return NextResponse.json({ ok: true, coughs })

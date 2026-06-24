@@ -1,20 +1,14 @@
 "use client"
-
+import { CircleStop, Loader2, Mic, RotateCw, Upload } from "lucide-react"
 import { useState } from "react"
 import { useReactMediaRecorder } from "react-media-recorder"
-import { Mic, RotateCw, Upload, Check } from "lucide-react"
 import { Button } from "./ui/button"
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip"
-import {
   Dialog,
-  DialogTrigger,
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogTrigger,
 } from "./ui/dialog"
 
 type UploadResponse = {
@@ -28,20 +22,33 @@ type UploadStatus = "idle" | "uploading" | "success" | "error"
 
 const recordingLimitMS = 10000
 
-export default function RecordButton({ onUploadSuccess }: { onUploadSuccess?: () => void }) {
+export default function RecordButton({
+  onUploadSuccess,
+}: {
+  onUploadSuccess?: () => void
+}) {
+  const [open, setOpen] = useState(false)
   const [uploadStatus, setUploadStatus] = useState<UploadStatus>("idle")
   const [blobData, setBlobData] = useState<Blob>()
+  const [errorMessage, setErrorMessage] = useState<string>("")
 
   const tryUploading = async (blob: Blob) => {
     try {
       setUploadStatus("uploading")
+      setErrorMessage("")
       const result = await uploadAudio(blob)
       setUploadStatus("success")
       if (onUploadSuccess) {
         onUploadSuccess()
       }
+      setOpen(false)
     } catch (e) {
       setUploadStatus("error")
+      if (e instanceof Error) {
+        setErrorMessage(e.message)
+      } else {
+        setErrorMessage("アップロードに失敗しました。")
+      }
     }
   }
 
@@ -85,6 +92,18 @@ export default function RecordButton({ onUploadSuccess }: { onUploadSuccess?: ()
       },
     })
 
+  const handleOpenChange = (isOpen: boolean) => {
+    setOpen(isOpen)
+    if (!isOpen) {
+      if (status === "recording") {
+        stopRecording()
+      }
+      setUploadStatus("idle")
+      setBlobData(undefined)
+      setErrorMessage("")
+    }
+  }
+
   return (
     // <Tooltip>
     //   <TooltipTrigger asChild>
@@ -109,7 +128,10 @@ export default function RecordButton({ onUploadSuccess }: { onUploadSuccess?: ()
     //   <TooltipContent side="bottom">Start Recording</TooltipContent>
     // </Tooltip>
 
-    <Dialog>
+    <Dialog
+      open={open}
+      onOpenChange={handleOpenChange}
+    >
       <DialogTrigger asChild>
         <Button
           variant={"outline"}
@@ -121,11 +143,11 @@ export default function RecordButton({ onUploadSuccess }: { onUploadSuccess?: ()
       </DialogTrigger>
       <DialogContent
         onInteractOutside={(e) => e.preventDefault()}
-        showCloseButton={true}
+        showCloseButton={uploadStatus !== "uploading"}
       >
         <DialogHeader>
           <DialogTitle>
-            {status == "stopped" ? "Successfully recorded" : "Recording…"}
+            {status == "stopped" ? "録音が完了しました" : "録音中…"}
           </DialogTitle>
         </DialogHeader>
         {status == "stopped" && (
@@ -134,22 +156,40 @@ export default function RecordButton({ onUploadSuccess }: { onUploadSuccess?: ()
             src={mediaBlobUrl}
           ></audio>
         )}
+        {errorMessage && (
+          <div className="p-3 bg-destructive/10 border border-destructive/20 text-destructive text-xs rounded-lg font-medium">
+            {errorMessage}
+          </div>
+        )}
         <div className="flex gap-6">
           {status == "stopped" ? (
             <div className="flex gap-3">
-              <Button onClick={startRecording}>
+              <Button
+                onClick={startRecording}
+                disabled={uploadStatus === "uploading"}
+              >
                 <RotateCw />
-                Re-record
+                録音し直す
               </Button>
-              {uploadStatus == "idle" && (
-                <Button onClick={() => blobData && tryUploading(blobData)}>
-                  <Upload />
-                  Upload
+              {uploadStatus === "uploading" ? (
+                <Button disabled>
+                  <Loader2 className="animate-spin mr-2 h-4 w-4" />
+                  アップロード中…
                 </Button>
+              ) : (
+                (uploadStatus === "idle" || uploadStatus === "error") && (
+                  <Button onClick={() => blobData && tryUploading(blobData)}>
+                    <Upload />
+                    アップロード
+                  </Button>
+                )
               )}
             </div>
           ) : (
-            <Button onClick={stopRecording}>Stop</Button>
+            <Button onClick={stopRecording}>
+              <CircleStop />
+              停止
+            </Button>
           )}
         </div>
       </DialogContent>
