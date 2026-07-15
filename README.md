@@ -1,36 +1,37 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 咳をしても一人じゃない
 
-## Getting Started
+匿名で咳を録音・投稿・再生できる Web アプリケーションです。
 
-First, run the development server:
+## 機能
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+* **録音**: ブラウザ上で咳を録音し、録音後にプレビュー・再録音が可能
+* **投稿**: 録音した咳をサーバーへアップロードして保存
+* **再生**: 投稿された咳を一覧から選択して再生
+
+## 技術スタック
+
+| 分類              | 技術                      |
+| --------------- | ----------------------- |
+| Framework       | Next.js 16 (App Router) |
+| Language        | TypeScript              |
+| Runtime         | React 19 / Bun          |
+| Styling         | Tailwind CSS v4         |
+| UI              | shadcn/ui (Radix UI)    |
+| Audio Recording | react-media-recorder    |
+| Storage         | Vercel Blob             |
+| Testing         | Vitest                  |
+
+## ディレクトリ構成
+
+```text
+.
+├── app/              # ページ・レイアウト・API
+│   └── api/          # 音声アップロード・取得 API
+├── components/       # UI コンポーネント
+│   └── ui/           # shadcn/ui コンポーネント
+├── lib/              # 共通ユーティリティ
+├── public/           # 静的ファイル
+├── spec/             # プロジェクト仕様書
+├── AGENTS.md         # AI エージェント向け開発ガイド
+└── README.md         # プロジェクト概要
 ```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
