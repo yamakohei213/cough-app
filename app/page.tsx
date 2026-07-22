@@ -147,7 +147,7 @@ export default function Home() {
       />
 
       <div className="flex flex-col items-center gap-4 text-center">
-        <div className="relative group transition-transform duration-300 hover:scale-105">
+        <div className="relative group">
           <Image
             src="/title.png"
             alt="ロゴ"
